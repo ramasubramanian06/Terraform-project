@@ -1,0 +1,7 @@
+form state files - never commit
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Local .terraform directories
+**/.terraform/*
