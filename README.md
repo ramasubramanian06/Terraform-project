@@ -36,12 +36,22 @@ The implementation has two independent Terraform root configurations: one create
 
 ```mermaid
 flowchart TD
-    Bootstrap["remote_state: backend bootstrap"] --> Bucket["S3: versioned and encrypted state"]
-    Bootstrap --> Locks["DynamoDB: terraform-lock"]
-    Bootstrap --> Local["Bootstrap state: local file"]
-    App["local_state: EC2 configuration"] --> EC2["EC2: Terraform_Demo"]
-    App -->|Read and write state| Bucket
-    App -->|Acquire and release lock| Locks
+    subgraph Computer["My computer"]
+        InstanceCode["Terraform in local_state/"]
+        StorageCode["Terraform in remote_state/"]
+    end
+
+    subgraph AWS["AWS"]
+        EC2["EC2 instance"]
+        S3["S3 bucket: EC2 state file"]
+        DB["DynamoDB table: state lock"]
+    end
+
+    InstanceCode -->|Creates and manages| EC2
+    InstanceCode <-->|Reads and saves state| S3
+    InstanceCode -->|Locks and unlocks state| DB
+    StorageCode -->|Creates| S3
+    StorageCode -->|Creates| DB
 ```
 
 ## Repository Structure
